@@ -11,9 +11,10 @@ services:
       - TZ=Europe/Brussels
       - PASSWORD=HM0nqPAamVHAw8
       - CUSTOM_USER=calibre_admin
-    volumes:
+    volumes: 
       - "/data_nas/data/media/books:/books"
-      - "/data_nas/data/media/metadata:/metadata"
+      ##- "/data_nas/data/media/metadata:/metadata"
+      ## Calibre Library better local to avoid database corruption
       - "/opt/docker/calibre/data:/data"
       - "/opt/docker/calibre/config:/config"
     ports:
