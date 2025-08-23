@@ -4,7 +4,7 @@ services:
     image: lscr.io/linuxserver/calibre:latest
     container_name: calibre
     security_opt:
-      - seccomp:unconfined # Required for the GUI to function correctly
+      - seccomp:unconfined # Required for the GUI to function correctlyxx
     environment:
       - PUID=1000
       - PGID=1000
