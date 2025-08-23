@@ -4,9 +4,49 @@
 # But don't ignore directories (so Git can check inside)
 !*/
 
-# Don't ignore YAML files
+# Ignore contents of each folder by default
+development/data-engineering/*
+development/elastic-postgres-pgsync/*
+development/haystack/*
+development/haystack-cookbook/*
+development/haystack-rag-app/*
+development/tika-docker/*
+development/dagster/*
+development/n8n-nodes-tesseractjs/*
+development/docker-communityserver/*
+development/docker-documentserver/*
+development/doris-opentelemetry-demo/*
+development/opentelemetry-demo/*
+
+# Except YAML files inside those folders
+!development/data-engineering/**/*.yml
+!development/data-engineering/**/*.yaml
+!development/elastic-postgres-pgsync/**/*.yml
+!development/elastic-postgres-pgsync/**/*.yaml
+!development/haystack/**/*.yml
+!development/haystack/**/*.yaml
+!development/haystack-cookbook/**/*.yml
+!development/haystack-cookbook/**/*.yaml
+!development/haystack-rag-app/**/*.yml
+!development/haystack-rag-app/**/*.yaml
+!development/tika-docker/**/*.yml
+!development/tika-docker/**/*.yaml
+!development/dagster/**/*.yml
+!development/dagster/**/*.yaml
+!development/n8n-nodes-tesseractjs/**/*.yml
+!development/n8n-nodes-tesseractjs/**/*.yaml
+!development/docker-communityserver/**/*.yml
+!development/docker-communityserver/**/*.yaml
+!development/docker-documentserver/**/*.yml
+!development/docker-documentserver/**/*.yaml
+!development/doris-opentelemetry-demo/**/*.yml
+!development/doris-opentelemetry-demo/**/*.yaml
+!development/opentelemetry-demo/**/*.yml
+!development/opentelemetry-demo/**/*.yaml
+
+# Don't ignore YAML files anywhere else
 !*.yml
 !*.yaml
 
-# Also don't ignore .gitignore itself and any other files you want to keep tracked
+# Always keep .gitignore tracked
 !.gitignore
