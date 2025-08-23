@@ -14,6 +14,7 @@ services:
     volumes:
       - "/data_nas/data/media/books:/books"
       - "/data_nas/data/media/metadata:/metadata"
+      - "/opt/docker/calibre/data:/data"
       - "/opt/docker/calibre/config:/config"
     ports:
       - "8080:8080" # Web GUI
