@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  monitoring:
+    image: nicolargo/glances:latest-full
+    pid: host
+    network_mode: host
+    environment:
+      - PUID=1029
+      - PGID=100
+      - TZ=Europe/Brussels
+      - "GLANCES_OPT=-w"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /run/user/1000/podman/podman.sock:/run/user/1000/podman/podman.sock
+    ports: 
+      - 61208:61208
+    restart: unless-stopped
+    # For nvidia GPUs
+    # deploy:
+      # resources:
+        # reservations:
+          # devices:
+            # - driver: nvidia
+              # count: 1
+              # capabilities: [gpu]

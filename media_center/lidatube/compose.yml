@@ -1,0 +1,14 @@
+services:
+  lidatube:
+    image: thewicklowwolf/lidatube:latest
+    container_name: lidatube
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:
+      - "/data_nas/data/media/missing_lidarr_albums:/missing_lidarr_albums"
+      - "/opt/docker/lidatube/config:/config"
+    ports:
+      - 5000:5000
+    restart: unless-stopped

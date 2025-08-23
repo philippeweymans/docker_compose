@@ -1,0 +1,12 @@
+# Ignore everything
+*
+
+# But don't ignore directories (so Git can check inside)
+!*/
+
+# Don't ignore YAML files
+!*.yml
+!*.yaml
+
+# Also don't ignore .gitignore itself and any other files you want to keep tracked
+!.gitignore

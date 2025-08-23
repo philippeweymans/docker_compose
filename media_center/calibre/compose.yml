@@ -1,0 +1,22 @@
+---
+services:
+  calibre:
+    image: lscr.io/linuxserver/calibre:latest
+    container_name: calibre
+    security_opt:
+      - seccomp:unconfined # Required for the GUI to function correctly
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+      - PASSWORD=HM0nqPAamVHAw8
+      - CUSTOM_USER=calibre_admin
+    volumes:
+      - "/data_nas/data/media/books:/books"
+      - "/data_nas/data/media/metadata:/metadata"
+      - "/opt/docker/calibre/config:/config"
+    ports:
+      - "8080:8080" # Web GUI
+      - "8081:8081" # Content Server
+      - 8181:8181
+    restart: unless-stopped

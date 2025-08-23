@@ -1,0 +1,22 @@
+---
+services:
+  get_iplayer:
+    image: ghcr.io/thespad/whisparr:latest
+    container_name: whisparr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:	
+      - "/data_nas/data/media/movies_adult:/movies_adult"
+      - "/opt/docker/whisparr/config:/config"
+      - "/data_nas/data/media/downloads:/downloads" #<-- generic download folder (same for qbittorrent, lidarr, sonarr, readarr, radar)
+    ports:
+      - 6969:6969
+    restart: unless-stopped
+  
+  # vlc:
+  #   image: jlesage/vlc
+  #   network_mode: host
+  #   volumes:
+  #     - /home/nfs/nas/movies_adult:/media:ro

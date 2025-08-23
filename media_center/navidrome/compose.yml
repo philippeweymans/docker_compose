@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome 
+    environment:
+      - PUID=1000 #  Use PUID/PGID instead of running as root
+      - PGID=1000
+      - TZ=Europe/Brussels # Optional: Good for logs
+    ports:
+      - "4533:4533"
+    restart: unless-stopped
+    volumes:
+      - "/data_nas/data/media/music:/music:ro" # This is perfect!
+      - "/opt/docker/navidrome/data:/data" # <-- CRITICAL CHANGE: Use /data for Navidrome's config

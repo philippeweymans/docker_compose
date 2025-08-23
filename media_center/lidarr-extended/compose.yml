@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  lidarr:
+    image: hotio/lidarr:latest
+    container_name: lidarr-extended
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    volumes:
+      - "/data_nas/data/media/downloads:/downloads"
+      - "/data_nas/data/media/music:/music"
+      - "/opt/docker/lidarr/config:/config"
+    ports:
+      - "8686:8686"
+    restart: unless-stopped

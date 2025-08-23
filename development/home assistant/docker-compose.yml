@@ -1,0 +1,15 @@
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    environment:
+      - PUID=1029
+      - PGID=100
+      - TZ=Europe/Brussels
+    volumes:
+      - /home/nfs/nas/docker/homeassistant/config:/config
+    ports:
+      - 18123:8123
+    restart: unless-stopped
+    privileged: true
+

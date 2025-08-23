@@ -1,0 +1,20 @@
+---
+services:
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:
+      - "/opt/docker/sabnzbd/config:/config"
+      - "/opt/docker/sabnzbd/data:/downloads"
+#      - /home/nfs/nas/docker/sabnzbd/config:/config
+#      - /home/nfs/nas/Downloads/completed:/completed
+#      - /home/nfs/nas/Downloads/incomplete-nzb:/incomplete
+#      - /home/nfs/nas/Downloads/torrents-nzbs:/nzbs
+    ports:
+      - 8775:8080
+      - 9093:9090
+    restart: unless-stopped

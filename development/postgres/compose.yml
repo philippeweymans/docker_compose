@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    # set shared memory limit when using docker-composexcxyy12345EE
+    shm_size: 128mb
+    ports:
+      - 5432:5432
+    volumes:
+      - ./custom-postgres.conf:/etc/postgresql/postgresql.conf
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+      # - /data_nas/postgres/
+      # - /home/nfs/nas/postgres:/var/lib/postgresql/data
+      #- /home/nfs/nas/elasticPostgres:/var/lib/postgresql/data
+      #- /home/philippe/Documents/Postgres:/var/lib/postgresql/data
+    command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'    
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+      PUID: 1029
+      PGID: 100
+      TZ: Europe/Brussels
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 18080:8080
+

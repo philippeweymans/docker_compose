@@ -1,0 +1,44 @@
+version: '3'
+services:
+  dbgate:
+    image: dbgate/dbgate
+    restart: always
+    ports:
+      - 3030:3000
+    volumes:
+      # - dbgate-data:/root/.dbgate
+      - /data_nas/docker/dbgate/config:/root/.dbgate
+    environment:
+      CONNECTIONS: con1,con2,con3,con4
+
+      LABEL_con1: MySql
+      SERVER_con1: mysql
+      USER_con1: root
+      PASSWORD_con1: TEST
+      PORT_con1: 3306
+      ENGINE_con1: mysql@dbgate-plugin-mysql
+
+
+      LABEL_con2: Postgres
+      SERVER_con2: 192.168.2.103
+      USER_con2: postgres
+      PASSWORD_con2: example
+      PORT_con2: 5432
+      DATABASE_con2: postgres
+      ENGINE_con2: postgres@dbgate-plugin-postgres
+      
+      LABEL_con4: PostgresElasticPgSync
+      SERVER_con4: 192.168.2.103
+      USER_con4: postgres
+      PASSWORD_con4: postgres
+      PORT_con4: 5433
+      DATABASE_con4: postgres
+      ENGINE_con4: postgres@dbgate-plugin-postgres
+
+      LABEL_con3: MongoDB
+      URL_con3: mongodb://mongo:27017
+      ENGINE_con3: mongo@dbgate-plugin-mongo
+
+volumes:
+  dbgate-data:
+    driver: local

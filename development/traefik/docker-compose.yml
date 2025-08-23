@@ -1,0 +1,36 @@
+version: "3.3"
+
+services:
+  traefik:
+    image: traefik:v3.4
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      # Plugin configuration (FIXED)
+      # - "--experimental.plugins.enabled=true"
+      # - "--experimental.plugins.fail2ban.moduleName=github.com/tomMoulard/fail2ban"  # camelCase
+      # - "--experimental.plugins.fail2ban.version=v0.8.6"
+    ports:
+      - "801:80"
+      - "443:443"
+      - "8086:8080"
+    networks:
+      - traefik_public
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      # Dashboard protection (FIXED)
+      - "traefik.http.routers.traefik.middlewares=traefik-auth"  # Correct router name
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=admin:$$apr1$$9cTjllOk$$lqcs1cHwJqV6fUzX5Q4nX0"
+      # Required dashboard labels
+      - "traefik.http.routers.traefik.rule=Host(`your-domain.com`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+
+networks:
+  traefik_public:
+    external: true

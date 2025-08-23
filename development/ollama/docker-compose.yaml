@@ -1,0 +1,30 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_debug # Ensure this matches what you use in commands
+    ports:
+      - "11434:11434"
+    environment:
+      - TZ=Europe/Brussels
+      - OLLAMA_PULL_MODELS=nomic-embed-text,llama3:8b # THIS LINE MUST BE PRESENT AND CORRECT
+    volumes:
+      - /home/nfs/nas/docker/ollama:/root/.ollama # Your existing volume for ollama data
+      - ./entrypoint.sh:/entrypoint.sh # Mounts the script from the current directory
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/entrypoint.sh"] # Explicitly use /bin/sh
+
+
+  # open-webui service can remain as is, or you can comment it out for this specific test
+  # open-webui:
+  #   image: ghcr.io/open-webui/open-webui:main
+  #   container_name: open-webui_debug
+  #   ports:
+  #     - "3000:8080"
+  #   environment:
+  #     - TZ=Europe/Brussels
+  #     - 'OLLAMA_BASE_URL=http://ollama_debug:11434' # Adjust if ollama container name changed
+  #   volumes:
+  #     - /home/nfs/nas/docker/ollama_webui:/app/backend/data
+  #   depends_on:
+  #     - ollama
+  #   restart: unless-stopped

@@ -1,0 +1,20 @@
+---
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
+    volumes:
+      - "/opt/docker/radarr/config:/config"
+      #### --- Your final, sorted media libraries ---
+      ### These will be read by the Arrs and your media server (Plex/Jellyfin).
+      ### qBittorrent itself does NOT need access to the sorted media libs
+      ### You will map these into your Sonarr/Radarr/Lidarr containers.
+      - "/data_nas/data/media/movies:/movies"
+      - "/data_nas/data/media/downloads:/downloads" #<-- generic download folder (same for qbittorrent, lidarr, sonarr, readarr, radar)
+    ports:
+      - 7878:7878
+    restart: unless-stopped

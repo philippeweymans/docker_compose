@@ -1,0 +1,32 @@
+
+---
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      ############ --- For qBittorrent's own configuration ---
+      - "/opt/docker/qbittorrent/config:/config"
+      #############" " --- A SINGLE, SHARED download folder for all media ---
+      #### This is the key to making the Arrs work.
+      - "/data_nas/data/media/downloads:/downloads" #<-- generic download folder (same for qbittorrent, lidarr, sonarr, readarr, radar)      #### --- Your final, sorted media libraries ---
+      ### These will be read by the Arrs and your media server (Plex/Jellyfin).
+      ### qBittorrent itself does NOT need access to these.
+      ### You will map these into your Sonarr/Radarr/Lidarr containers.
+      ### NOT REALLY NEEDED, DUE TO LEGACY, CAN BE OMITTED ONCE EVERYTHING IS MIGRATED
+      - "/data_nas/data/media/music:/music"
+      - "/data_nas/data/media/movies:/movies"
+      - "/data_nas/data/media/books:/books"
+      - "/data_nas/data/media/tvseries:/tvseries"
+    ports:
+      # --- To access the Web UI ---
+      # Map host port 50123 to the container's internal UI port 8080
+      - 50123:8080
+      # --- For incoming torrent connections ---
+      # Map host port 37901 using both TCP and UDP protocols
+      - 37901:37901/tcp
+      - 37901:37901/udp
+    restart: unless-stopped
