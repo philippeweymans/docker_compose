@@ -1,26 +1,29 @@
----
 services:
   calibre:
     image: lscr.io/linuxserver/calibre:latest
     container_name: calibre
     security_opt:
-      - seccomp:unconfined # Required for the GUI to function correctlyxx
+      - seccomp:unconfined
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Brussels
       - PASSWORD=HM0nqPAamVHAw8
       - CUSTOM_USER=calibre_admin
+      # VNC Configuration
+      - CUSTOM_PORT=8080
+      - CUSTOM_HTTPS_PORT=8181
+      - TITLE=Calibre
+      # Enable VNC access
+      - SUBFOLDER=/ 
     volumes: 
       - "/data_nas/data/media/books:/books"
-      ##- "/data_nas/data/media/metadata:/metadata"
-      ## Calibre Library better local to avoid database corruption
       - "/opt/docker/calibre/data:/data"
       - "/opt/docker/calibre/config:/config"
     ports:
-      - "8080:8080" # Web GUI
-      - "8081:8081" # Content Server
-      - 8181:8181
-      - 8083:8083
-      - 5900:5900  # VNC port
+      - "8080:8080"   # HTTP Web GUI
+      - "8081:8081"   # Content Server
+      - "8181:8181"   # HTTPS Web GUI
+      - "5900:5900"   # VNC port
+      - "6080:6080"   # noVNC (web-based VNC)
     restart: unless-stopped
