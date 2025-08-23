@@ -50,3 +50,4 @@ development/opentelemetry-demo/*
 
 # Always keep .gitignore tracked
 !.gitignore
+!.gitattributes
