@@ -21,5 +21,6 @@ services:
       - "8080:8080" # Web GUI
       - "8081:8081" # Content Server
       - 8181:8181
+      - 8083:8083
       - 5900:5900  # VNC port
     restart: unless-stopped
