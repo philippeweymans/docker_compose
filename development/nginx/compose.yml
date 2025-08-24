@@ -19,6 +19,9 @@ services:
       # Optional: custom logs
       #- ./data/log:/var/log/nginx
     environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Brussels
       # You can define env vars if you use templates - for basic configs, not always needed.
     networks:
       - nginx_net
