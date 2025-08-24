@@ -89,8 +89,6 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - 
-
       - /opt/docker/nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro
       - /opt/docker/nginx/config/sites-enabled:/etc/nginx/conf.d:ro
       - /opt/docker/nginx/certs:/etc/letsencrypt
