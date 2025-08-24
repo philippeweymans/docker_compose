@@ -93,6 +93,12 @@ services:
       - /opt/docker/nginx/config/sites-enabled:/etc/nginx/conf.d:ro
       - /opt/docker/nginx/certs:/etc/letsencrypt
       - /opt/docker/nginx/www:/var/www/certbot
+      # --- ADD THESE TWO NEW VOLUMES FOR SECUTIRY---
+      - /opt/docker/nginx/config/options-ssl-nginx.conf:/etc/nginx/options-ssl-nginx.conf:ro
+      - /opt/docker/nginx/config/security-headers.conf:/etc/nginx/security-headers.conf:ro
+      
+      # (Optional but recommended for CrowdSec/Fail2Ban later)
+      - /opt/docker/nginx/logs:/var/log/nginx
     networks:
       - nginx_net
 
