@@ -1,3 +1,4 @@
+
 version: '3.8'
 
 services:
@@ -30,4 +31,4 @@ services:
 
 networks:
   nginx_net:
-    driver: bridger
+    driver: bridge
