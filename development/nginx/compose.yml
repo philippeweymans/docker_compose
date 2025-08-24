@@ -1,31 +1,61 @@
+# services:
+#   nginx:
+#     image: nginx:latest
+#     container_name: nginx-proxy
+#     restart: unless-stopped
+#     ports:
+#       - "880:80"          # For standard HTTP
+#       - "8443:443"        # For standard HTTPS
+#       - "12345:12345"    # For your custom service if needed
+#     volumes:
+#       # Main nginx config
+#       - /opt/docker/nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro
+#       - /opt/docker/nginx/config/proxy.conf:/etc/nginx/proxy.conf:ro
+#       # Extra site or reverse proxy configs
+#       - /opt/docker/nginx/config/sites-enabled:/etc/nginx/conf.d:ro
+#       # SSL certificates (update path if different)
+#       - /opt/docker/nginx/config/cert:/etc/nginx/cert:ro
+#       # Static files (optional)
+#       #- ./data:/usr/share/nginx/html:ro
+#       # Optional: custom logs
+#       #- ./data/log:/var/log/nginx
+#     environment:
+#       - PUID=1000
+#       - PGID=1000
+#       - TZ=Europe/Brussels
+#       # You can define env vars if you use templates - for basic configs, not always needed.
+#     networks:
+#       - nginx_net
+# networks:
+#   nginx_net:
+#     driver: bridge
+
+
 services:
   nginx:
     image: nginx:latest
     container_name: nginx-proxy
     restart: unless-stopped
-    ports:
-      - "880:80"          # For standard HTTP
-      - "8443:443"        # For standard HTTPS
-      - "12345:12345"    # For your custom service if needed
-    volumes:
-      # Main nginx config
-      - /opt/docker/nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /opt/docker/nginx/config/proxy.conf:/etc/nginx/proxy.conf:ro
-      # Extra site or reverse proxy configs
-      - /opt/docker/nginx/config/sites-enabled:/etc/nginx/conf.d:ro
-      # SSL certificates (update path if different)
-      - /opt/docker/nginx/config/cert:/etc/nginx/cert:ro
-      # Static files (optional)
-      #- ./data:/usr/share/nginx/html:ro
-      # Optional: custom logs
-      #- ./data/log:/var/log/nginx
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Brussels
-      # You can define env vars if you use templates - for basic configs, not always needed.
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /opt/docker/nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /opt/docker/nginx/config/proxy.conf:/etc/nginx/proxy.conf:ro
+      - /opt/docker/nginx/config/sites-enabled:/etc/nginx/conf.d:ro
+      - /opt/docker/nginx/certs:/etc/letsencrypt
+      - /opt/docker/nginx/www:/var/www/certbot
     networks:
       - nginx_net
-networks:
-  nginx_net:
-    driver: bridge
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - /opt/docker/nginx/certs:/etc/letsencrypt
+      - /opt/docker/nginx/www:/var/www/certbot
+    #command: certonly --webroot --webroot-path=/var/www/certbot --email YOUR_EMAIL@example.com --agree-tos --no-eff-email -d uptime.weymans.synology.me -d navidrome.weymans.synology.me ... (add all your domains here)
