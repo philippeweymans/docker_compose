@@ -9,11 +9,11 @@ services:
       - "12345:12345"    # For your custom service if needed
     volumes:
       # Main nginx config
-      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /opt/docker/nginx/config/nginx.conf:/etc/nginx/nginx.conf:ro
       # Extra site or reverse proxy configs
-      - ./config/sites-enabled:/etc/nginx/conf.d:ro
+      - /opt/docker/nginx/config/sites-enabled:/etc/nginx/conf.d:ro
       # SSL certificates (update path if different)
-      - ./config/certs:/etc/nginx/certs:ro
+      - /opt/docker/nginx/config/cert/57dc2236-a6a2-48d3-acbe-e98690067859:/etc/nginx/certs:ro
       # Static files (optional)
       #- ./data:/usr/share/nginx/html:ro
       # Optional: custom logs
