@@ -14,7 +14,7 @@ services:
       # Extra site or reverse proxy configs
       - /opt/docker/nginx/config/sites-enabled:/etc/nginx/conf.d:ro
       # SSL certificates (update path if different)
-      - /opt/docker/nginx/config/cert/57dc2236-a6a2-48d3-acbe-e98690067859:/etc/nginx/certs:ro
+      - /opt/docker/nginx/config/cert:/etc/nginx/cert:ro
       # Static files (optional)
       #- ./data:/usr/share/nginx/html:ro
       # Optional: custom logs
