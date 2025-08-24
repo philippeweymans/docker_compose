@@ -1,0 +1,27 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"          # For standard HTTP
+      - "443:443"        # For standard HTTPS
+      - "12345:12345"    # For your custom service if needed
+    volumes:
+      # Main nginx config
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Extra site or reverse proxy configs
+      - ./config/sites-enabled:/etc/nginx/conf.d:ro
+      # SSL certificates (update path if different)
+      - ./config/certs:/etc/nginx/certs:ro
+      # Static files (optional)
+      #- ./data:/usr/share/nginx/html:ro
+      # Optional: custom logs
+      #- ./data/log:/var/log/nginx
+    environment:
+      # You can define env vars if you use templates - for basic configs, not always needed.
+    networks:
+      - nginx_net
+networks:
+  nginx_net:
+    driver: bridge
