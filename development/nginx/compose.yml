@@ -1,6 +1,4 @@
-
 version: '3.8'
-
 services:
   nginx:
     image: nginx:latest
@@ -14,11 +12,11 @@ services:
       - /opt/docker/nginx/config/sites-enabled:/etc/nginx/conf.d:ro
       - /opt/docker/nginx/certs:/etc/letsencrypt
       - /opt/docker/nginx/www:/var/www/certbot
-      # --- ADD THESE TWO NEW VOLUMES FOR SECUTIRY---
       - /opt/docker/nginx/config/options-ssl-nginx.conf:/etc/nginx/options-ssl-nginx.conf:ro
       - /opt/docker/nginx/config/security-headers.conf:/etc/nginx/security-headers.conf:ro
-      # (Optional but recommended for CrowdSec/Fail2Ban later)
       - /opt/docker/nginx/logs:/var/log/nginx
+    depends_on:
+      - crowdsec
     networks:
       - nginx_net
 
@@ -29,43 +27,45 @@ services:
       - /opt/docker/nginx/certs:/etc/letsencrypt
       - /opt/docker/nginx/www:/var/www/certbot
       - /opt/docker/nginx/logs:/var/log/nginx:ro
-
-  # --- ADD THE CROWDSEC AGENT ---
-  crowdsec:
-    image: crowdsecsecurity/crowdsec:latest
-    container_name: crowdsec-agent
-    restart: unless-stopped
-    environment:
-      # This tells CrowdSec to automatically install the nginx collection
-      - COLLECTIONS=crowdsec/nginx
-      # Ensure this GID matches the 'docker' group GID or your user's GID on the host
-      - GID=1000
-    volumes:
-      # Mount the nginx logs so the agent can read them
-      - /opt/docker/nginx/logs:/var/log/nginx:ro
-      # Mount the local data directory
-      - /opt/docker/nginx/crowdsec-data:/var/lib/crowdsec/data
-      # Mount the local config directory
-      - /opt/docker/nginx/crowdsec-config:/etc/crowdsec
     networks:
       - nginx_net
 
-  # --- ADD THE NGINX BOUNCER ---
-  bouncer-nginx:
-    image: crowdsecsecurity/nginx-bouncer:latest
-    container_name: crowdsec-bouncer
+  # CrowdSec - Detection and Intelligence Only
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec-agent
     restart: unless-stopped
     environment:
-      # This API key will be generated in the next phase
-      - CROWDSEC_BOUNCER_API_KEY=YOUR_API_KEY_HERE
-      # This tells the bouncer how to find the agent
-      - CROWDSEC_AGENT_HOST=crowdsec-agent:8080
-      # Run in production mode
-      - GIN_MODE=release
+      - COLLECTIONS=crowdsecurity/nginx
+    volumes:
+      - /opt/docker/nginx/logs:/var/log/nginx:ro
+      - crowdsec-data:/var/lib/crowdsec/data
+      - /opt/docker/nginx/crowdsec-config:/etc/crowdsec
+    ports:
+      - "8080:8080"
+    networks:
+      - nginx_net
+
+  # Optional: Web dashboard for monitoring (rootless)
+  crowdsec-dashboard:
+    image: metabase/metabase:latest
+    container_name: crowdsec-dashboard
+    restart: unless-stopped
+    environment:
+      - MB_DB_TYPE=h2
+      - MB_DB_FILE=/metabase-data/metabase.db
+    ports:
+      - "3000:3000"
     depends_on:
       - crowdsec
     networks:
       - nginx_net
+    volumes:
+      - /opt/docker/nginx/crowdsec-dashboard-data:/metabase-data
+      - crowdsec-data:/crowdsec-data
+
+volumes:
+  crowdsec-data:
 
 networks:
   nginx_net:
