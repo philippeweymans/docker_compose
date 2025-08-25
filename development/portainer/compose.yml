@@ -1,18 +1,18 @@
 version: '3.9'
 
-networks:
-  media_center:
-    external: true
-    name: media_center
-  nginx_nginx_net:
-    external: true
-    name: nginx_nginx_net
-  qbittorrent_default:
-    external: true
-    name: qbittorrent_default
-  default:
-    external: true
-    name: media_center
+# networks:
+#   media_center:
+#     external: true
+#     name: media_center
+#   nginx_nginx_net:
+#     external: true
+#     name: nginx_nginx_net
+#   qbittorrent_default:
+#     external: true
+#     name: qbittorrent_default
+#   default:
+#     external: true
+#     name: media_center
 
 services:
   portainer:
@@ -28,8 +28,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - /opt/docker/portainer/data:/data
-    networks:
-      - media_center
-      - nginx_nginx_net
-      - qbittorrent_default
+    # networks:
+    #   - media_center
+    #   - nginx_nginx_net
+    #   - qbittorrent_default
     restart: unless-stopped
