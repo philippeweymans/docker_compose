@@ -52,7 +52,7 @@ services:
 
   # --- ADD THE NGINX BOUNCER ---
   bouncer-nginx:
-    image: crowdsecsecurity/nginx-bouncer:latest
+    image: crowdsecsecurity/cs-nginx-bouncer:latest
     container_name: crowdsec-bouncer
     restart: unless-stopped
     environment:
