@@ -1,0 +1,23 @@
+
+version: '3.8'
+
+services:
+  koreader-sync:
+    image: johngong/koreader-sync-server:latest
+    container_name: koreader-sync-server
+    restart: unless-stopped
+    ports:
+      - "8090:7200"  # Changed to avoid conflict with your Metabase dashboard
+    environment:
+      - PUID=1000     # Your rootless user ID
+      - PGID=1000     # Your rootless group ID  
+      - TZ=Europe/Brussels
+    volumes:
+      - /opt/docker/koreader-sync/config:/config
+      - /opt/docker/koreader-sync/data:/data
+    networks:
+      - nginx_net  # Use your existing nginx network
+
+networks:
+  nginx_net:
+    external: true  # Connect to your existing network

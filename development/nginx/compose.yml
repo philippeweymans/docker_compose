@@ -42,7 +42,7 @@ services:
       - crowdsec-data:/var/lib/crowdsec/data
       - /opt/docker/nginx/crowdsec-config:/etc/crowdsec
     ports:
-      - "8080:8080"
+      - "8085:8080"
     networks:
       - nginx_net
 
@@ -70,3 +70,5 @@ volumes:
 networks:
   nginx_net:
     driver: bridge
+    external: true
+    

@@ -1,3 +1,14 @@
+######## IRREGULARITIES DUE TO VNC SESSION CALIBRE ##########
+#### new docker container sessions generate new .config folder/subfolders below config folder with  desktop etc, as USER/GROUP 100999:100999
+######## BEST FIX for  permission issues for data library ############
+######## sudo chown -R 100999:100999 /opt/docker/calibre/data ############
+######## PLUGINS CAN ONLY BE MOVED TO /opt/docker/calibre/config/.config/calibre/plugins ITT /opt/docker/calibre/config/plugins ############
+
+networks:
+  media_center:
+    external: true
+    name: media_center
+
 services:
   calibre:
     image: lscr.io/linuxserver/calibre:latest
@@ -10,8 +21,6 @@ services:
       - TZ=Europe/Brussels
       - PASSWORD=HM0nqPAamVHAw8
       - CUSTOM_USER=calibre_admin
-      - CUSTOM_USER=calibre_admin
-      - CLI_ARGS= #optional
 
       # VNC Configuration
       #- CUSTOM_PORT=8080
@@ -32,4 +41,69 @@ services:
       - 8080:8080
       - 8181:8181
       - 8081:8081
+      #### FOR WIRELESS ACCESS - REQUIRED TO CONNECT CALIBRE IN KOREADER (required to sync metadata, progress, notes,???)
+      - 9090:9090  # if you want to use 9090
+
+    networks:
+      - media_center
     restart: unless-stopped
+
+
+
+#  # User 1 - Calibre-Web Instance
+#   calibre-web-user1:
+#     image: lscr.io/linuxserver/calibre-web:latest
+#     container_name: calibre-web-user-philippe
+#     environment:
+#       - PUID=1000
+#       - PGID=1000
+#       - TZ=Europe/Brussels
+#       - DOCKER_MODS=linuxserver/mods:universal-calibre
+#       # Initial admin user setup
+#       - OAUTHLIB_RELAX_TOKEN_SCOPE=1
+#     volumes:
+#       - "/opt/docker/calibre/data:/books_calibre:ro"  # Read-only books
+#       - "/opt/docker/calibre-web/user_philippe:/config"  # Separate config/database
+#     ports:
+#       - "8083:8083"
+#     networks:
+#       - media_center
+#     restart: unless-stopped
+
+#   # User 2 - Calibre-Web Instance  
+#   calibre-web-user2:
+#     image: lscr.io/linuxserver/calibre-web:latest
+#     container_name: calibre-web-user-krista
+#     environment:
+#       - PUID=1000
+#       - PGID=1000
+#       - TZ=Europe/Brussels
+#       - DOCKER_MODS=linuxserver/mods:universal-calibre
+#       - OAUTHLIB_RELAX_TOKEN_SCOPE=1
+#     volumes:
+#       - "/opt/docker/calibre/data:/books_calibre:ro"  # Read-only books
+#       - "/opt/docker/calibre-web/user_krista:/config"  # Separate config/database
+#     ports:
+#       - "8084:8083"
+#     networks:
+#       - media_center
+#     restart: unless-stopped
+
+#   # User 3 - Calibre-Web Instance
+#   calibre-web-user3:
+#     image: lscr.io/linuxserver/calibre-web:latest
+#     container_name: calibre-web-user-willem
+#     environment:
+#       - PUID=1000
+#       - PGID=1000
+#       - TZ=Europe/Brussels
+#       - DOCKER_MODS=linuxserver/mods:universal-calibre
+#       - OAUTHLIB_RELAX_TOKEN_SCOPE=1
+#     volumes:
+#       - "/opt/docker/calibre/data:/books_calibre:ro"  # Read-only books
+#       - "/opt/docker/calibre-web/user_willem:/config"  # Separate config/database
+#     ports:
+#       - "8085:8083"
+#     networks:
+#       - media_center
+#     restart: unless-stopped

@@ -19,6 +19,10 @@ development/doris-opentelemetry-demo/*
 development/opentelemetry-demo/*
 
 # Except YAML files inside those folders
+# doesnt work outside repo
+# !/opt/docker/nginx
+
+# Except YAML files inside those folders
 !development/data-engineering/**/*.yml
 !development/data-engineering/**/*.yaml
 !development/elastic-postgres-pgsync/**/*.yml

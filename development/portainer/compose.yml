@@ -1,35 +1,64 @@
 version: '3.9'
 
-# networks:
-#   media_center:
-#     external: true
-#     name: media_center
-#   nginx_nginx_net:
-#     external: true
-#     name: nginx_nginx_net
-#   qbittorrent_default:
-#     external: true
-#     name: qbittorrent_default
-#   default:
-#     external: true
-#     name: media_center
+networks:
+  nginx_net:
+    external: true
+    name: nginx_net
+  media_center:
+    external: true
+    name: media_center
+  development:
+    external: true
+    name: development
+  default:
+    external: true
+    name: nginx_net
 
 services:
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
-    privileged: true
-    pid: host
-    security_opt:
-      - apparmor:unconfined
+    # privileged: true
+    # pid: host
+    # security_opt:
+    #   - apparmor:unconfined
     ports:
       - "9443:9443" # Use HTTPS for security
       - "9000:9000" # Optional, if you need the non-HTTPS port
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:rw
+      # ROOT ACCESS - BETTER / MORE SECURE DOCKER SETUP 
+      - /run/user/1000/docker.sock:/var/run/docker.sock:rw
+      # ROOT ACCESS - DEFAULT DOCKER SETUP (less secure)
+      # - /var/run/docker.sock:/var/run/docker.sock:rw
       - /opt/docker/portainer/data:/data
-    # networks:
-    #   - media_center
-    #   - nginx_nginx_net
-    #   - qbittorrent_default
+    networks:
+      - nginx_net
+      - media_center
+      - development
     restart: unless-stopped
+
+
+
+############# WORKING MINIMAL
+# version: '3.9'
+# services:
+#   portainer:
+#     # image: portainer/portainer-ce:latest
+#     image: portainer/portainer-ce:2.19.4
+#     container_name: portainer
+#     restart: unless-stopped
+#     ports:
+#       - "9000:9000"
+#       - "9443:9443"
+#     volumes:
+#       - /run/user/1000/docker.sock:/var/run/docker.sock:rw
+#       - /opt/docker/portainer/data:/data
+#     networks:
+#       - nginx_net  # <- Changed this
+
+# volumes:
+#   portainer_data:
+
+# networks:
+#   nginx_net:  # <- And this
+#     external: true

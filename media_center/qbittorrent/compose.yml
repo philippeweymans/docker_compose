@@ -1,12 +1,15 @@
+networks:
+  media_center:
+    external: true
+    name: media_center
 
----
 services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
-    environment:
-      - PUID=1000
-      - PGID=1000
+    # environment:
+    #   - PUID=1000
+    #   - PGID=1000
     volumes:
       ############ --- For qBittorrent's own configuration ---
       - "/opt/docker/qbittorrent/config:/config"
@@ -29,4 +32,6 @@ services:
       # Map host port 37901 using both TCP and UDP protocols
       - 37901:37901/tcp
       - 37901:37901/udp
+    networks:
+      - media_center
     restart: unless-stopped

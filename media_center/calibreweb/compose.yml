@@ -9,9 +9,7 @@ services:
       - TZ=Europe/Brussels
     volumes:
       - "/data_nas/data/media/books:/books"
-      - "/data_nas/data/media/metadata:/metadata"
       - "/opt/docker/calibreweb/config:/config"
-#      - "/opt/docker/calibreweb/data:/data"
     ports:
       - 8083:8083
     restart: unless-stopped
