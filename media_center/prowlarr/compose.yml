@@ -1,4 +1,7 @@
----
+networks:
+  media_center:
+    external: true
+    name: media_center
 services:
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
@@ -6,9 +9,11 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
+      - TZ=Europe/Brussels
     volumes:
       - "/opt/docker/prowlarr/config/:/config"
     ports:
       - 9696:9696
     restart: unless-stopped
+    networks:
+      - media_center

@@ -1,4 +1,8 @@
----
+networks:
+  media_center:
+    external: true
+    name: media_center
+
 services:
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -19,3 +23,5 @@ services:
     ports:
       - 8989:8989
     restart: unless-stopped
+    networks:
+      - media_center

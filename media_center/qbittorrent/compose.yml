@@ -7,9 +7,11 @@ services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
-    # environment:
-    #   - PUID=1000
-    #   - PGID=1000
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - tz=Europe/Brussels
+      # - UMASK=002
     volumes:
       ############ --- For qBittorrent's own configuration ---
       - "/opt/docker/qbittorrent/config:/config"
@@ -24,10 +26,12 @@ services:
       - "/data_nas/data/media/movies:/movies"
       - "/data_nas/data/media/books:/books"
       - "/data_nas/data/media/tvseries:/tvseries"
+
     ports:
       # --- To access the Web UI ---
       # Map host port 50123 to the container's internal UI port 8080
       - 50123:8080
+      
       # --- For incoming torrent connections ---
       # Map host port 37901 using both TCP and UDP protocols
       - 37901:37901/tcp
@@ -35,3 +39,10 @@ services:
     networks:
       - media_center
     restart: unless-stopped
+    # user: "1000:1000"  # Add this line to force user mapping
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

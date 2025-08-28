@@ -1,0 +1,23 @@
+networks:
+  media_center:
+    external: true
+    name: media_center
+services:
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=1000           # Replace with your user id
+      - PGID=1000           # Replace with your group id
+      - TZ=Europe/Brussels  # Replace with your timezone
+    volumes:
+      - /opt/docker/bazarr/config:/config   # Config files persistence
+      # - /:/data/media               # Media files path inside container
+      - /data_nas/data/media/tvseries:/tvseries
+      - /data_nas/data/media/movies:/movies
+    ports:
+      - 6767:6767               # Local port to container port mapping
+    # network_mode: bridge        # Or use your custom network
+    restart: unless-stopped     # Restart policy
+    networks:
+      - media_center

@@ -1,4 +1,7 @@
-version: '3.9'
+networks:
+  development:
+    external: true
+    name: development
 
 services:
 
@@ -10,8 +13,14 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - ./custom-postgres.conf:/etc/postgresql/postgresql.conf
-      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
+
+      # - /opt/docker/postgres/custom-postgres.conf:/etc/postgresql/postgresql.conf
+      # - /opt/docker/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - /opt/docker/postgres2/custom-postgres.conf:/etc/postgresql/postgresql.conf
+      - /opt/docker/postgres2/pg_hba.conf:/etc/postgresql/pg_hba.conf
+
+      # - ./custom-postgres.conf:/etc/postgresql/postgresql.conf
+      # - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
       # - /data_nas/postgres/
       # - /home/nfs/nas/postgres:/var/lib/postgresql/data
       #- /home/nfs/nas/elasticPostgres:/var/lib/postgresql/data
@@ -21,8 +30,8 @@ services:
       POSTGRES_PASSWORD: example
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
-      PUID: 1029
-      PGID: 100
+      PUID: 1000
+      PGID: 1000
       TZ: Europe/Brussels
   adminer:
     image: adminer
@@ -30,3 +39,5 @@ services:
     ports:
       - 18080:8080
 
+    networks:
+      - development

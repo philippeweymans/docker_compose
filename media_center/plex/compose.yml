@@ -1,0 +1,26 @@
+networks:
+  media_center:
+    external: true
+    name: media_center
+
+services:
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - VERSION=docker
+      - PLEX_CLAIM= #optional
+    volumes:
+      - "/opt/docker/plex/config:/config"
+      - "/data_nas/data/media/tvseries:/tvseries"
+      - "/data_nas/data/media/movies:/movies"
+      - "/data_nas/data/media/music:/music"
+      # --- ADD THE LINE BELOW FOR ARR-SCRIPTS ---
+    ports:
+      - 32400:32400
+    restart: unless-stopped
+    networks:
+      - media_center

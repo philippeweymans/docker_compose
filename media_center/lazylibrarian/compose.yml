@@ -1,0 +1,27 @@
+networks:
+  media_center:
+    external: true
+    name: media_center
+
+services:
+  lazylibrarian:
+    image: lscr.io/linuxserver/lazylibrarian:latest
+    container_name: lazylibrarian
+    environment:
+      - PUID=1000              # your user ID for permissions
+      - PGID=1000              # your group ID for permissions
+      - TZ=Europe/Brussels     # your timezone
+      - DOCKER_MODS=linuxserver/mods:universal-calibre|linuxserver/mods:lazylibrarian-ffmpeg # optional mods
+    volumes:
+      - /opt/docker/lazylibrarian/config:/config    # config and data persistence
+      # - /data_nas/data/media/books-readarr:/books      
+      - /data_nas/data/media/books:/books-final
+      # Mount Calibre library (for integration)
+      - /opt/docker/calibre/data:/data   # Same path as Calibre!      
+      # Downloads folder
+      - /data_nas/data/media/downloads:/downloads
+    ports:
+      - 5299:5299                                # expose port for web UI
+    restart: unless-stopped
+    networks:
+      - media_center

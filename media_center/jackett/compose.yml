@@ -1,4 +1,7 @@
----
+networks:
+  media_center:
+    external: true
+    name: media_center
 services:
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -6,11 +9,13 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Etc/UTC
-      - AUTO_UPDATE=true #optional
-      - RUN_OPTS= #optional
+      - TZ=Europe/Brussels
+      # - AUTO_UPDATE=true #optional
+      # - RUN_OPTS= #optional
     volumes:
       - "/opt/docker/jackett/config:/config"
     ports:
       - 9117:9117
     restart: unless-stopped
+    networks:
+      - media_center

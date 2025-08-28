@@ -2,19 +2,21 @@ networks:
   media_center:
     external: true
     name: media_center
-    
+
 services:
-  overseerr:
-    image: lscr.io/linuxserver/overseerr:latest
-    container_name: overseerr
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    ports:
+      - "8191:8191"
+    volumes:
+      - "/opt/docker/flaresolverr/config:/config"
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Brussels
-    volumes:
-      - "/opt/docker/overseerr/config:/config" # This is the only volume needed
-    ports:
-      - 5055:5055
+      - LOG_LEVEL=info
     restart: unless-stopped
     networks:
       - media_center
+

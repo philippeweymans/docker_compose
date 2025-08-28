@@ -1,7 +1,12 @@
-version: "3.7"
+networks:
+  media_center:
+    external: true
+    name: media_center
+
 services:
   lidarr:
-    image: hotio/lidarr:latest
+    # image: hotio/lidarr:latest
+    image: linuxserver/lidarr:latest
     container_name: lidarr-extended
     environment:
       - PUID=1000
@@ -14,3 +19,5 @@ services:
     ports:
       - "8686:8686"
     restart: unless-stopped
+    networks:
+      - media_center

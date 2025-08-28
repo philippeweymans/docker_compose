@@ -1,0 +1,25 @@
+
+networks:
+  development:
+    external: true
+    name: development
+
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    environment:
+      - PUID=1000              # your user ID for permissions
+      - PGID=1000              # your group ID for permissions
+      - TZ=Europe/Brussels     # your timezone
+    volumes:
+      - /opt/docker/uptimekuma/data:/app/data    # config and data persistence
+    ports:
+      - 3001:3001  # <Host Port>:<Container Port>
+    restart: always
+    networks:
+      - development
+
+
+

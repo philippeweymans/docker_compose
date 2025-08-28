@@ -1,18 +1,40 @@
----
+networks:
+  media_center:
+    external: true
+    name: media_center
+
 services:
   readarr:
-    image: lscr.io/linuxserver/readarr:develop
+    image: lscr.io/linuxserver/readarr:nightly-0.4.19.2811-ls400
     container_name: readarr
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=1000  # Your rootless user ID
+      - PGID=1000  # Your rootless group ID
       - TZ=Europe/Brussels
-    volumes:	
-      - "/data_nas/data/media/books:/books"
-      - "/data_nas/data/media/metadata:/metadata"
-      - "/opt/docker/readarr/config:/config"
-      - "/data_nas/data/media/downloads:/downloads" #<-- generic download folder (same for qbittorrent, lidarr, sonarr, readarr, radar)
+    volumes:
+      # Readarr configuration
+      - /opt/docker/readarr/config:/config
+      
+      # Readarr workspace (where it processes books)
+      - /data_nas/data/media/books-readarr:/books
+      
+      # Mount your final book collection (for reference/monitoring)
+      - /data_nas/data/media/books:/books-final
+      
+      # Mount Calibre library (for integration)
+      - /opt/docker/calibre/data:/data   # Same path as Calibre!
+      
+      # Downloads folder
+      - /data_nas/data/media/downloads:/downloads
+      
+      # arr-scripts volumes (CRITICAL - do not map to same local folder!)
+      - /opt/docker/readarr/config/readarr-scripts/custom-services.d:/custom-services.d
+      - /opt/docker/readarr/config/readarr-scripts/custom-cont-init.d:/custom-cont-init.d
     ports:
-      - 8787:8787
+      - "8787:8787"
     restart: unless-stopped
+    networks:
+      - media_center
 
+  # Optional: If you want Plex notifications
+  # Make sure to configure plexUrl and plexToken in extended.conf

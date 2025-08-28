@@ -1,4 +1,10 @@
-version: '3'
+
+
+networks:
+  development:
+    external: true
+    name: development
+
 services:
   dbgate:
     image: dbgate/dbgate
@@ -7,7 +13,10 @@ services:
       - 3030:3000
     volumes:
       # - dbgate-data:/root/.dbgate
-      - /data_nas/docker/dbgate/config:/root/.dbgate
+      # - /data_nas/docker/dbgate/config:/root/.dbgate
+      - /opt/docker/dbgate/data:/root/.dbgate
+    networks:
+      - development
     environment:
       CONNECTIONS: con1,con2,con3,con4
 
@@ -18,9 +27,8 @@ services:
       PORT_con1: 3306
       ENGINE_con1: mysql@dbgate-plugin-mysql
 
-
       LABEL_con2: Postgres
-      SERVER_con2: 192.168.2.103
+      SERVER_con2: 192.168.2.105
       USER_con2: postgres
       PASSWORD_con2: example
       PORT_con2: 5432
@@ -28,7 +36,7 @@ services:
       ENGINE_con2: postgres@dbgate-plugin-postgres
       
       LABEL_con4: PostgresElasticPgSync
-      SERVER_con4: 192.168.2.103
+      SERVER_con4: 192.168.2.105
       USER_con4: postgres
       PASSWORD_con4: postgres
       PORT_con4: 5433

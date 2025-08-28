@@ -1,21 +1,28 @@
-version: '3'
+networks:
+  development:
+    external: true
+    name: development
 
 services:
   monitoring:
     image: nicolargo/glances:latest-full
-    pid: host
-    network_mode: host
+    # pid: host
+    # network_mode: host
     environment:
-      - PUID=1029
-      - PGID=100
+      - PUID=1000
+      - PGID=1000
       - TZ=Europe/Brussels
       - "GLANCES_OPT=-w"
     volumes:
+      # - /opt/docker/glances/config/var/run:/var/run/docker.sock
+      # - /opt/docker/glances/config/run/user/1000/podman:/run/user/1000/podman/podman.sock
       - /var/run/docker.sock:/var/run/docker.sock
       - /run/user/1000/podman/podman.sock:/run/user/1000/podman/podman.sock
     ports: 
       - 61208:61208
     restart: unless-stopped
+    networks:
+      - development
     # For nvidia GPUs
     # deploy:
       # resources:

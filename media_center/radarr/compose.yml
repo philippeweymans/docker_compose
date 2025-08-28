@@ -1,4 +1,8 @@
----
+networks:
+  media_center:
+    external: true
+    name: media_center
+
 services:
   radarr:
     image: lscr.io/linuxserver/radarr:latest
@@ -18,3 +22,5 @@ services:
     ports:
       - 7878:7878
     restart: unless-stopped
+    networks:
+      - media_center

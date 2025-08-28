@@ -1,0 +1,146 @@
+
+
+networks:
+  development:
+    external: true
+    name: development
+
+services:
+  # Main Jupyter service with bash kernel and scientific libraries
+  jupyter-main:
+    image: jupyter/scipy-notebook:latest
+    container_name: jupyter-main
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./shared:/home/jovyan/shared
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: >
+      bash -c "
+      pip install bash_kernel &&
+      python -m bash_kernel.install &&
+      start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+      "
+    networks:
+      - development
+
+  # TensorFlow/ML focused notebook
+  jupyter-tensorflow:
+    image: jupyter/tensorflow-notebook:latest
+    container_name: jupyter-tensorflow
+    ports:
+      - "8889:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./shared:/home/jovyan/shared
+      - ./ml-models:/home/jovyan/models
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: >
+      bash -c "
+      pip install bash_kernel &&
+      python -m bash_kernel.install &&
+      start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+      "
+    networks:
+      - development
+
+  # R notebook
+  jupyter-r:
+    image: jupyter/r-notebook:latest
+    container_name: jupyter-r
+    ports:
+      - "8890:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./shared:/home/jovyan/shared
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: >
+      bash -c "
+      pip install bash_kernel &&
+      python -m bash_kernel.install &&
+      start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+      "
+    networks:
+      - development
+
+  # Minimal base notebook for lightweight tasks
+  jupyter-minimal:
+    image: jupyter/base-notebook:latest
+    container_name: jupyter-minimal
+    ports:
+      - "8891:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./shared:/home/jovyan/shared
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: >
+      bash -c "
+      pip install bash_kernel &&
+      python -m bash_kernel.install &&
+      start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+      "
+    networks:
+      - development
+
+  # PostgreSQL database for data analysis
+  postgres:
+    image: postgres:15
+    container_name: jupyter-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: jupyter_data
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - development
+
+  # Redis for caching and data storage
+  redis:
+    image: redis:7-alpine
+    container_name: jupyter-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - development
+
+  # All-in-one Jupyter with multiple kernels
+  jupyter-all:
+    image: jupyter/datascience-notebook:latest
+    container_name: jupyter-datascience
+    ports:
+      - "8892:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./shared:/home/jovyan/shared
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: >
+      bash -c "
+      pip install bash_kernel psycopg2-binary redis &&
+      python -m bash_kernel.install &&
+      start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+      "
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - development
+
+networks:
+  development:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
