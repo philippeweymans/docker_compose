@@ -1,0 +1,54 @@
+
+networks:
+  development:
+    name: development
+    driver: bridge
+    external: true
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: dev-postgres
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    ports:
+      - "5432:5432"
+    volumes:
+      - /opt/docker/postgres/:/var/lib/postgresql/dat
+      #- /home/nfs/nas/elasticPostgres:/var/lib/postgresql/data
+      #- /home/philippe/Documents/Postgres:/var/lib/postgresql/data
+      - /opt/docker/postgres/custom-postgres.conf:/etc/postgresql/postgresql.conf
+      - /opt/docker/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+      # Create multiple databases
+      POSTGRES_MULTIPLE_DATABASES: app1,app2,pgsync,analytics,postgres
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Brussels
+    networks:
+      - development
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "18080:8080"  # Changed from 8080 to match your original port mapping
+    networks:
+      - development
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - development
+
+volumes:
+  postgres-data:

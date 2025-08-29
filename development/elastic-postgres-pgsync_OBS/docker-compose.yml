@@ -1,0 +1,72 @@
+
+
+networks:
+  development:
+    external: true
+    name: development
+
+services:
+  elasticsearch:
+    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.13.4'
+    container_name: elasticsearch
+    networks:
+      - development
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+      # - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    # ulimits:
+    #   memlock:
+    #     soft: -1
+    #     hard: -1
+    ports:
+      - '9201:9200'
+
+  kibana:
+    image: 'docker.elastic.co/kibana/kibana:7.13.4'
+    depends_on:
+      - elasticsearch
+    ports:
+      - '5601:5601'
+    networks:
+      - development
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+  database:
+    build:
+      context: .
+      dockerfile: PostgresDockerfile
+    container_name: database
+    ports:
+      - '5433:5432'
+    volumes:
+      - /opt/docker/elasticPostgres:/var/lib/postgresql/data
+    networks:
+      - development
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+  redis:
+    image: 'redis:alpine'
+    container_name: redis
+    networks:
+      - development
+    ports:
+      - '6379:6379'
+
+  pgsync:
+    build:
+      context: .
+      dockerfile: PgsyncDockerfile
+    container_name: pgsync
+    networks:
+      - development
+    environment:
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_DATABASE=postgres
+      - PG_HOST=database
+      - ELASTICSEARCH_HOST=elasticsearch
+      - REDIS_HOST=redis

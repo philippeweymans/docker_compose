@@ -35,14 +35,6 @@ services:
       DATABASE_con2: postgres
       ENGINE_con2: postgres@dbgate-plugin-postgres
       
-      LABEL_con4: PostgresElasticPgSync
-      SERVER_con4: 192.168.2.105
-      USER_con4: postgres
-      PASSWORD_con4: postgres
-      PORT_con4: 5433
-      DATABASE_con4: postgres
-      ENGINE_con4: postgres@dbgate-plugin-postgres
-
       LABEL_con3: MongoDB
       URL_con3: mongodb://mongo:27017
       ENGINE_con3: mongo@dbgate-plugin-mongo

@@ -1,0 +1,39 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_COMMUNITY_PACKAGES_ALLOW_TOOL_USAGE=true
+      - N8N_HOST=n8n.baas.support
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.baas.support/
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+
+  backend:
+    build: ./backend
+    ports: ["8000:8000"]
+    depends_on: [n8n]
+
+  frontend:
+    build: ./frontend
+    ports: ["3000:3000"]
+    depends_on: [backend]
+
+  # SSE-based MCP server for Brave Search
+  brave-search-sse:
+    image: shoofio/brave-search-mcp-sse:latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - BRAVE_API_KEY=BSAJC_RcvVWFVVTtXUF2VpQRWZJPgM6
+      - PORT=8080
+    # Optional: Add logging or other envs as needed
+    
+volumes:
+  n8n_data:

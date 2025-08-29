@@ -1,0 +1,240 @@
+version: '3.8'
+
+networks:
+  development:
+    name: ${NETWORK_NAME:-development}
+    driver: bridge
+    external: true
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-15}
+    container_name: ${POSTGRES_CONTAINER_NAME:-dev-postgres}
+    restart: ${RESTART_POLICY:-always}
+    shm_size: ${POSTGRES_SHARED_MEMORY:-128mb}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ${HOST_POSTGRES_DATA:-/opt/docker/postgres/data}:/var/lib/postgresql/data
+      - ${POSTGRES_CONFIG_PATH:-/opt/docker/postgres/config/custom-postgres.conf}:/etc/postgresql/postgresql.conf
+      - ${POSTGRES_HBA_PATH:-/opt/docker/postgres/config/pg_hba.conf}:/etc/postgresql/pg_hba.conf
+      - ./init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    command: postgres -c 'config_file=/etc/postgresql/postgresql.conf'
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-example}
+      POSTGRES_HOST_AUTH_METHOD: ${POSTGRES_HOST_AUTH_METHOD:-trust}
+      POSTGRES_INITDB_ARGS: ${POSTGRES_INITDB_ARGS:---auth-host=scram-sha-256}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_MULTIPLE_DATABASES:-app1,app2,pgsync,analytics,postgres}
+      PUID: ${POSTGRES_PUID:-1000}
+      PGID: ${POSTGRES_PGID:-1000}
+      TZ: ${TZ:-Europe/Brussels}
+    networks:
+      - development
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-10m}
+        max-file: ${LOGGING_MAX_FILE:-3}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: ${HEALTH_CHECK_INTERVAL:-30s}
+      timeout: ${HEALTH_CHECK_TIMEOUT:-10s}
+      retries: ${HEALTH_CHECK_RETRIES:-3}
+      start_period: ${HEALTH_CHECK_START_PERIOD:-40s}
+
+  # MariaDB Database
+  mariadb:
+    image: mariadb:${MARIADB_VERSION:-10.11}
+    container_name: ${MARIADB_CONTAINER_NAME:-dev-mariadb}
+    restart: ${RESTART_POLICY:-always}
+    ports:
+      - "${MARIADB_PORT:-3306}:3306"
+    volumes:
+      - ${HOST_MARIADB_DATA:-/opt/docker/mariadb/data}:/var/lib/mysql
+      - ${MARIADB_CONFIG_PATH:-/opt/docker/mariadb/config}:/etc/mysql/conf.d
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-example}
+      MYSQL_DATABASE: ${MARIADB_DATABASE:-mysql}
+      MYSQL_USER: ${MARIADB_USER:-mariadb_user}
+      MYSQL_PASSWORD: ${MARIADB_PASSWORD:-mariadb_password}
+      PUID: ${MARIADB_PUID:-1000}
+      PGID: ${MARIADB_PGID:-1000}
+      TZ: ${TZ:-Europe/Brussels}
+    networks:
+      - development
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-10m}
+        max-file: ${LOGGING_MAX_FILE:-3}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: ${HEALTH_CHECK_INTERVAL:-30s}
+      timeout: ${HEALTH_CHECK_TIMEOUT:-10s}
+      retries: ${HEALTH_CHECK_RETRIES:-3}
+      start_period: ${HEALTH_CHECK_START_PERIOD:-40s}
+
+  # Redis Cache
+  redis:
+    image: redis:${REDIS_VERSION:-alpine}
+    container_name: ${REDIS_CONTAINER_NAME:-dev-redis}
+    restart: ${RESTART_POLICY:-always}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - ${HOST_REDIS_DATA:-/opt/docker/redis/data}:/data
+    networks:
+      - development
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-10m}
+        max-file: ${LOGGING_MAX_FILE:-3}
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: ${HEALTH_CHECK_INTERVAL:-30s}
+      timeout: ${HEALTH_CHECK_TIMEOUT:-10s}
+      retries: ${HEALTH_CHECK_RETRIES:-3}
+
+  # Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION:-8.11.0}
+    container_name: ${ELASTICSEARCH_CONTAINER_NAME:-dev-elasticsearch}
+    restart: ${RESTART_POLICY:-always}
+    ports:
+      - "${ELASTICSEARCH_HTTP_PORT:-9200}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT:-9300}:9300"
+    # user: "1000:1000"
+    volumes:
+      - ${HOST_ELASTICSEARCH_DATA:-/opt/docker/elasticsearch/data}:/usr/share/elasticsearch/data
+      # - elasticsearch-data:/usr/share/elasticsearch/data # Use a named volume
+    environment:
+      - discovery.type=${ELASTICSEARCH_DISCOVERY_TYPE:-single-node}
+      - xpack.security.enabled=${ELASTICSEARCH_SECURITY_ENABLED:-false}
+      - xpack.security.enrollment.enabled=${ELASTICSEARCH_ENROLLMENT_ENABLED:-false}
+      - ES_JAVA_OPTS=${ELASTICSEARCH_JAVA_OPTS:--Xms1g -Xmx1g}
+      - bootstrap.memory_lock=${ELASTICSEARCH_BOOTSTRAP_MEMORY_LOCK:-true}      
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - development
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-10m}
+        max-file: ${LOGGING_MAX_FILE:-3}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: ${HEALTH_CHECK_INTERVAL:-30s}
+      timeout: ${HEALTH_CHECK_TIMEOUT:-10s}
+      retries: 5
+      start_period: ${HEALTH_CHECK_START_PERIOD:-40s}
+
+  # Database Administration Tool
+  adminer:
+    image: adminer:${ADMINER_VERSION:-latest}
+    container_name: ${ADMINER_CONTAINER_NAME:-dev-adminer}
+    restart: ${RESTART_POLICY:-always}
+    ports:
+      - "${ADMINER_PORT:-18080}:8080"
+    networks:
+      - development
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-10m}
+        max-file: ${LOGGING_MAX_FILE:-3}
+    depends_on:
+      - postgres
+      - mariadb
+
+  # PGSync (for PostgreSQL to Elasticsearch sync)
+  pgsync:
+    build:
+      context: .
+      dockerfile: PgsyncDockerfile
+    container_name: ${PGSYNC_CONTAINER_NAME:-dev-pgsync}
+    restart: ${RESTART_POLICY:-always}
+    networks:
+      - development
+    environment:
+      - PG_USER=${PGSYNC_PG_USER:-postgres}
+      - PG_PASSWORD=${PGSYNC_PG_PASSWORD:-example}
+      - PG_DATABASE=${PGSYNC_PG_DATABASE:-pgsync}
+      - PG_HOST=${PGSYNC_PG_HOST:-postgres}
+      - PG_PORT=${PGSYNC_PG_PORT:-5432}
+      - ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST:-elasticsearch}
+      - ELASTICSEARCH_PORT=${ELASTICSEARCH_HTTP_PORT:-9200}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-10m}
+        max-file: ${LOGGING_MAX_FILE:-3}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Optional: Kibana (visualization tool - uncomment if needed)
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${KIBANA_VERSION:-8.11.0}
+    container_name: ${KIBANA_CONTAINER_NAME:-dev-kibana}
+    restart: ${RESTART_POLICY:-always}
+    ports:
+      - "${KIBANA_PORT:-5601}:5601"
+    networks:
+      - development
+    environment:
+      - ELASTICSEARCH_HOSTS=http://${ELASTICSEARCH_HOST:-elasticsearch}:${ELASTICSEARCH_HTTP_PORT:-9200}
+      - SERVER_NAME=${KIBANA_SERVER_NAME:-kibana}
+      - SERVER_HOST=${KIBANA_SERVER_HOST:-0.0.0.0}
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-10m}
+        max-file: ${LOGGING_MAX_FILE:-3}
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  # Optional: Redis Commander (Redis GUI - uncomment if needed)
+  redis-commander:
+    image: rediscommander/redis-commander:${REDIS_COMMANDER_VERSION:-latest}
+    container_name: ${REDIS_COMMANDER_CONTAINER_NAME:-dev-redis-commander}
+    restart: ${RESTART_POLICY:-always}
+    ports:
+      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+    networks:
+      - development
+    environment:
+      - REDIS_HOSTS=local:${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
+    logging:
+      driver: ${LOGGING_DRIVER:-json-file}
+      options:
+        max-size: ${LOGGING_MAX_SIZE:-10m}
+        max-file: ${LOGGING_MAX_FILE:-3}
+    depends_on:
+      - redis
+
+# volumes:
+  # Using host-mounted volumes for better security and control
+  # If you prefer Docker-managed volumes, replace host paths with:
+  # postgres-data:
+  #   driver: local
+  # redis-data:
+  #   driver: local
+  # elasticsearch-data:
+  #   driver: local
+
+
+# volumes:
+#   elasticsearch-data:
+#     driver: local

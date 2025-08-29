@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    restart: always
+    ports:
+      - "${N8N_PORT}:5678"
+    env_file:
+      - .env
+    volumes:
+      - /opt/docker/n8n/config:/home/node/.n8n
+    networks:
+      - development
+
+  # SSE-based MCP server for Brave Search
+  brave-search-sse:
+    image: shoofio/brave-search-mcp-sse:latest
+    container_name: brave-search-mcp
+    restart: unless-stopped
+    ports:
+      - "${BRAVE_SEARCH_PORT}:8080"
+    environment:
+      - BRAVE_API_KEY=${BRAVE_API_KEY}
+      - PORT=${BRAVE_SEARCH_PORT}
+    networks:
+      - development
+
+volumes:
+  n8n_data:
+
+networks:
+  development:
+    driver: bridge
